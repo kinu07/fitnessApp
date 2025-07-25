@@ -1,0 +1,15 @@
+# Compiled class files
+/target/
+
+# Log files
+*.log
+
+# IDE files
+.idea/
+*.iml
+
+# Maven
+.mvn/
+
+# Other
+.DS_Store
