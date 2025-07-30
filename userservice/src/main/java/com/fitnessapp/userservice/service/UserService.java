@@ -4,10 +4,12 @@ import com.fitnessapp.userservice.dto.RegisterRequest;
 import com.fitnessapp.userservice.dto.UserResponse;
 import com.fitnessapp.userservice.model.User;
 import com.fitnessapp.userservice.userrepository.UserRepo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class UserService {
     @Autowired
     UserRepo userRepo;
@@ -56,4 +58,8 @@ public class UserService {
         return "User Is Deleted";
     }
 
+    public Boolean existsByUserId(String userId) {
+        log.info("calling user validation api in activity service for userid {}", userId);
+        return userRepo.existsById(userId);
+    }
 }

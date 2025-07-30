@@ -30,5 +30,10 @@ public class AppController {
         return (userService.deleteUser(userId));
     }
 
+    @GetMapping("/{userId}/validate")
+    public ResponseEntity<Boolean> validateUser(@PathVariable String userId){
+        return  ResponseEntity.ok(userService.existsByUserId(userId));
+    }
+
 
 }

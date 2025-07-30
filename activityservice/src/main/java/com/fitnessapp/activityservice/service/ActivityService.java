@@ -15,8 +15,14 @@ import java.util.stream.Collectors;
 public class ActivityService {
 
     private final ActivityRepo ar;
+    private final UserValidationService userValidationService;
 
     public ActivityResponse trackActivity(ActivityRequest request) {
+         boolean isValidUser = userValidationService.validateUser(request.getUserId());
+         if(!isValidUser){
+             throw new RuntimeException("user not found exception at Activity Service track activity method");
+         }
+
         Activity activity = Activity.builder()
                 .userId(request.getUserId())
                 .type(request.getType())
@@ -26,7 +32,7 @@ public class ActivityService {
                 .additionalMetrics(request.getAdditionalMetrics())
                 .build();
         Activity savedActivity = ar.save(activity);
-        return mapToResponse(activity);
+        return mapToResponse(savedActivity);
     }
     private ActivityResponse mapToResponse(Activity activity){
         ActivityResponse response = new ActivityResponse();
