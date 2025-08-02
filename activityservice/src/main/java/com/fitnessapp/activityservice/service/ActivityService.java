@@ -5,6 +5,8 @@ import com.fitnessapp.activityservice.dto.ActivityRequest;
 import com.fitnessapp.activityservice.dto.ActivityResponse;
 import com.fitnessapp.activityservice.model.Activity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,12 @@ public class ActivityService {
 
     private final ActivityRepo ar;
     private final UserValidationService userValidationService;
+    private final RabbitTemplate rabbitTemplate;
+
+    @Value("${rabbitmq.exchange.name}")
+    private String exchange;
+    @Value("${rabbitmq.routing.key}")
+    private String routingKey;
 
     public ActivityResponse trackActivity(ActivityRequest request) {
          boolean isValidUser = userValidationService.validateUser(request.getUserId());
@@ -32,6 +40,11 @@ public class ActivityService {
                 .additionalMetrics(request.getAdditionalMetrics())
                 .build();
         Activity savedActivity = ar.save(activity);
+        try{
+            rabbitTemplate.convertAndSend(exchange, routingKey, savedActivity);
+        }catch (Exception e){
+            throw new RuntimeException("Error while sending activity to RabbitMQ: " + e.getMessage());
+        }
         return mapToResponse(savedActivity);
     }
     private ActivityResponse mapToResponse(Activity activity){

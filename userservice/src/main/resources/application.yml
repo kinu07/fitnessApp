@@ -14,6 +14,10 @@ spring:
       ddl-auto : update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka
