@@ -25,9 +25,9 @@ public class AppController {
         return  ResponseEntity.ok(userService.register(request));
     }
 
-    @DeleteMapping("/{userid}")
+    @DeleteMapping("/{userId}")
     public String deleteUserByEmail(@PathVariable String userId){
-        return (userService.deleteUser(userId));
+        return userService.deleteUser(userId);
     }
 
     @GetMapping("/{userId}/validate")

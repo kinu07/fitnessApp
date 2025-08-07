@@ -1,4 +1,4 @@
-package com.fitnessapp.aiservice.aiservice;
+package com.fitnessapp.aiservice.service;
 
 import com.fitnessapp.aiservice.airepo.RecommendationRepo;
 import com.fitnessapp.aiservice.model.Recommendation;
@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

@@ -1,6 +1,6 @@
 package com.fitnessapp.aiservice.controller;
 
-import com.fitnessapp.aiservice.aiservice.RecommendationService;
+import com.fitnessapp.aiservice.service.RecommendationService;
 import com.fitnessapp.aiservice.model.Recommendation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

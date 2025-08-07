@@ -4,15 +4,17 @@ import com.fitnessapp.userservice.dto.RegisterRequest;
 import com.fitnessapp.userservice.dto.UserResponse;
 import com.fitnessapp.userservice.model.User;
 import com.fitnessapp.userservice.userrepository.UserRepo;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserService {
-    @Autowired
-    UserRepo userRepo;
+
+    private final UserRepo userRepo;
     public UserResponse register(RegisterRequest request) {
 
         if(userRepo.existsByEmail(request.getEmail())){
@@ -28,7 +30,7 @@ public class UserService {
         UserResponse ur = new UserResponse();
         ur.setId(savedUser.getId());
         ur.setEmail(savedUser.getEmail());
-        ur.setPassword(savedUser.getPassword());
+      //  ur.setPassword(savedUser.getPassword());
         ur.setFirstName(savedUser.getFirstName());
         ur.setLastName(savedUser.getLastName());
         ur.setCreatedAt(savedUser.getCreatedAt());
@@ -39,7 +41,7 @@ public class UserService {
 
     public UserResponse getUserProfile(String userId) {
 
-        User user = userRepo.findById(userId).orElseThrow(()-> new RuntimeException("User Id soes not exists"));
+        User user = userRepo.findById(userId).orElseThrow(()-> new RuntimeException("User Id does not exists"));
         UserResponse ur = new UserResponse();
         ur.setId(user.getId());
         ur.setEmail(user.getEmail());
@@ -53,10 +55,13 @@ public class UserService {
 
 
     public String deleteUser(String userId) {
-
+        if (!userRepo.existsById(userId)) {
+            throw new RuntimeException("User ID does not exist");
+        }
         userRepo.deleteById(userId);
-        return "User Is Deleted";
+        return "User is deleted";
     }
+
 
     public Boolean existsByUserId(String userId) {
         log.info("calling user validation api in activity service for userid {}", userId);

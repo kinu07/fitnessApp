@@ -1,4 +1,4 @@
-package com.fitnessapp.aiservice.aiservice;
+package com.fitnessapp.aiservice.service;
 
 import com.fitnessapp.aiservice.model.Activity;
 import lombok.RequiredArgsConstructor;
