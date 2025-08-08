@@ -1,9 +1,16 @@
 package com.fitnessapp.aiservice.service;
 
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fitnessapp.aiservice.model.Activity;
+import com.fitnessapp.aiservice.model.Recommendation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -16,7 +23,76 @@ public class ActivityAiService {
         String prompt = createPromptForActivity(activity);
         String aiResponse = geminiService.getAnswer(prompt);
         log.info("Response From Ai : {}", aiResponse);
-        return aiResponse;
+        processAiResponse(activity,aiResponse);
+
+        return prompt;
+    }
+    private Recommendation processAiResponse(Activity activity, String aiResponse) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(aiResponse);
+
+            JsonNode textNode = rootNode.path("candidates")
+                    .get(0)
+                    .path("content")
+                    .path("parts")
+                    .get(0)
+                    .path("text");
+
+            String jsonContent = textNode.asText()
+                    .replaceAll("```json\\n","")
+                    .replaceAll("\\n```", "")
+                    .trim();
+
+//            log.info("PARSED RESPONSE FROM AI: {} ", jsonContent);
+
+            JsonNode analysisJson = mapper.readTree(jsonContent);
+            JsonNode analysisNode = analysisJson.path("analysis");
+
+            StringBuilder fullAnalysis = new StringBuilder();
+            addAnalysisSection(fullAnalysis, analysisNode, "overall", "Overall:");
+            addAnalysisSection(fullAnalysis, analysisNode, "pace", "Pace:");
+            addAnalysisSection(fullAnalysis, analysisNode, "heartRate", "Heart Rate:");
+            addAnalysisSection(fullAnalysis, analysisNode, "caloriesBurned", "Calories:");
+
+            List<String> improvements = extractImprovements(analysisJson.path("improvements"));
+            List<String> suggestions = extractSuggestions(analysisJson.path("suggestions"));
+            List<String> safety = extractSafetyGuidelines(analysisJson.path("safety"));
+
+            return Recommendation.builder()
+                    .activityId(activity.getId())
+                    .userId(activity.getUserId())
+                    .activityType(activity.getType())
+                    .recommendation(fullAnalysis.toString().trim())
+                    .improvements(improvements)
+                    .suggestions(suggestions)
+                    .safetyMeasures(safety)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createDefaultRecommendation(activity);
+        }
+    }
+
+    private Recommendation createDefaultRecommendation(Activity activity) {
+        return null;
+    }
+
+    private List<String> extractSafetyGuidelines(JsonNode safety) {
+        return List.of();
+    }
+
+    private List<String> extractSuggestions(JsonNode suggestions) {
+        return List.of();
+    }
+
+    private List<String> extractImprovements(JsonNode improvements) {
+        return List.of();
+    }
+
+    private void addAnalysisSection(StringBuilder fullAnalysis, JsonNode analysisNode, String overall, String s) {
     }
 
     private String createPromptForActivity(Activity activity) {
@@ -29,6 +105,7 @@ public class ActivityAiService {
             "heartRate": "Heart rate analysis here",
             "caloriesBurned": "Calories analysis here"
           },
+          
           "improvements": [
             {
               "area": "Area name",
