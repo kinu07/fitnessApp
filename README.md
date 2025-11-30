@@ -1,2 +1,2 @@
 # fitnessApp
-fitness app spring boot microservices  
+fitness app using spring boot microservices 
